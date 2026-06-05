@@ -75,8 +75,8 @@ export default function PrivacyPolicy() {
 
         <Section title="Contact us">
           If you have any questions about this privacy policy, please reach out at:{" "}
-          <a href="mailto:hello@potligames.app" style={{ color: "#0077b6" }}>
-            hello@potligames.app
+          <a href="mailto:ayaankukreja3@gmail.com" style={{ color: "#0077b6" }}>
+            ayaankukreja3@gmail.com
           </a>
         </Section>
 
