@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { GAMES } from "@/games";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "@/LangContext";
 
 function Bubble({ style }: { style: React.CSSProperties }) {
@@ -12,8 +12,40 @@ function Bubble({ style }: { style: React.CSSProperties }) {
   );
 }
 
+function useInstallPrompt() {
+  const [prompt, setPrompt] = useState<any>(null);
+  const [installed, setInstalled] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => { setInstalled(true); setPrompt(null); });
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const install = async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    if (outcome === "accepted") setInstalled(true);
+    setPrompt(null);
+  };
+
+  return { canInstall: !!prompt, install, installed };
+}
+
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !(window as any).MSStream;
+}
+
 export default function Home() {
   const { lang, setLang, t } = useLang();
+  const { canInstall, install, installed } = useInstallPrompt();
+  const [showIOSHint, setShowIOSHint] = useState(false);
+  const ios = typeof navigator !== "undefined" && isIOS();
 
   const [bubbles] = useState(() =>
     Array.from({ length: 18 }, (_, i) => ({
@@ -24,6 +56,12 @@ export default function Home() {
       delay: Math.random() * 8,
     }))
   );
+
+  const installLabel = lang === "hi" ? "📲 ऐप डाउनलोड करो!" : "📲 Install App!";
+  const installedLabel = lang === "hi" ? "✅ इंस्टॉल हो गया!" : "✅ Installed!";
+  const iosHintLabel = lang === "hi"
+    ? "Safari में Share बटन दबाओ → \"Add to Home Screen\" चुनो!"
+    : 'Tap Share in Safari → "Add to Home Screen"';
 
   return (
     <div
@@ -55,7 +93,7 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 px-4 pb-28 pt-8 max-w-6xl mx-auto">
+      <div className="relative z-10 px-4 pb-32 pt-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <img
@@ -75,6 +113,69 @@ export default function Home() {
           >
             {t.subtitle}
           </p>
+
+          {/* ── Install button ── */}
+          <div className="mt-5 flex flex-col items-center gap-2">
+            {installed ? (
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-green-400/30 border-2 border-green-300 text-green-200 font-bold text-lg"
+                style={{ fontFamily: "'Fredoka One', cursive" }}>
+                {installedLabel}
+              </div>
+            ) : canInstall ? (
+              <button
+                onClick={install}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-blue-900 font-bold text-xl shadow-xl active:scale-95 transition-transform animate-pulse-soft"
+                style={{
+                  background: "linear-gradient(135deg, #ffd60a, #fb8500)",
+                  fontFamily: "'Fredoka One', cursive",
+                  boxShadow: "0 6px 0 #b05e00, 0 0 30px rgba(251,133,0,0.5)",
+                }}
+              >
+                {installLabel}
+              </button>
+            ) : ios ? (
+              <>
+                <button
+                  onClick={() => setShowIOSHint((v) => !v)}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-blue-900 font-bold text-xl shadow-xl active:scale-95 transition-transform"
+                  style={{
+                    background: "linear-gradient(135deg, #ffd60a, #fb8500)",
+                    fontFamily: "'Fredoka One', cursive",
+                    boxShadow: "0 6px 0 #b05e00",
+                  }}
+                >
+                  {installLabel}
+                </button>
+                {showIOSHint && (
+                  <div className="bg-white/20 backdrop-blur border-2 border-white/40 rounded-2xl px-5 py-3 max-w-xs text-center text-white font-bold text-sm"
+                    style={{ fontFamily: "'Fredoka One', cursive" }}>
+                    {iosHintLabel}
+                    <div className="text-2xl mt-1">⬆️ 🔗</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => setShowIOSHint((v) => !v)}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-blue-900 font-bold text-xl shadow-xl active:scale-95 transition-transform"
+                style={{
+                  background: "linear-gradient(135deg, #ffd60a, #fb8500)",
+                  fontFamily: "'Fredoka One', cursive",
+                  boxShadow: "0 6px 0 #b05e00",
+                }}
+              >
+                {installLabel}
+              </button>
+            )}
+            {!installed && !canInstall && !ios && showIOSHint && (
+              <div className="bg-white/20 backdrop-blur border-2 border-white/40 rounded-2xl px-5 py-3 max-w-xs text-center text-white font-bold text-sm"
+                style={{ fontFamily: "'Fredoka One', cursive" }}>
+                {lang === "hi"
+                  ? "Chrome में ⋮ मेनू → \"Add to Home Screen\" चुनो!"
+                  : 'In Chrome tap ⋮ menu → "Add to Home Screen"'}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Games Grid */}
@@ -154,8 +255,13 @@ export default function Home() {
           0%, 100% { transform: rotate(-5deg); }
           50% { transform: rotate(5deg); }
         }
+        @keyframes pulseSoft {
+          0%, 100% { transform: scale(1); box-shadow: 0 6px 0 #b05e00, 0 0 30px rgba(251,133,0,0.5); }
+          50% { transform: scale(1.04); box-shadow: 0 6px 0 #b05e00, 0 0 50px rgba(251,133,0,0.8); }
+        }
         .animate-bob { animation: bob 3s ease-in-out infinite; }
         .animate-wiggle { animation: wiggle 2s ease-in-out infinite; }
+        .animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
         .animate-bubble {}
       `}</style>
     </div>
