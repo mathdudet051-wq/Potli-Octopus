@@ -169,6 +169,17 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Privacy policy link */}
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-20">
+        <a
+          href="/privacy"
+          style={{ fontFamily: "'Fredoka One', cursive" }}
+          className="text-white/60 text-xs hover:text-white/90 transition-colors underline underline-offset-2"
+        >
+          Privacy Policy
+        </a>
+      </div>
+
       {/* Language toggle — fixed at bottom centre above the sand */}
       <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-white/20 backdrop-blur border-2 border-white/40 rounded-full px-1 py-1 shadow-lg">
         <button
