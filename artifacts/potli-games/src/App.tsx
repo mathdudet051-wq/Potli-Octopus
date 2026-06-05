@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/Home";
 import GamePage from "@/pages/GamePage";
 import NotFound from "@/pages/not-found";
+import { LangProvider } from "@/LangContext";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +20,11 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Router />
-      </WouterRouter>
+      <LangProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <Router />
+        </WouterRouter>
+      </LangProvider>
     </QueryClientProvider>
   );
 }

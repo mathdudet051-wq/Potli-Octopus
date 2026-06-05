@@ -1,8 +1,10 @@
 import { useParams, Link } from "wouter";
 import { GAMES } from "@/games";
+import { useLang } from "@/LangContext";
 
 export default function GamePage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLang();
   const game = GAMES.find((g) => g.id === id);
 
   if (!game) {
@@ -15,13 +17,15 @@ export default function GamePage() {
         <Link href="/">
           <button className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full text-lg shadow-lg"
             style={{ fontFamily: "'Fredoka One', cursive" }}>
-            Back to Games
+            {t.backToGames}
           </button>
         </Link>
       </div>
     );
   }
 
+  const gt = t.games[game.id as keyof typeof t.games];
+  const displayName = gt?.name ?? game.name;
   const GameComponent = game.component;
 
   return (
@@ -41,12 +45,12 @@ export default function GamePage() {
               fontFamily: "'Fredoka One', cursive",
             }}
           >
-            ← Games
+            {t.backToGames}
           </button>
         </Link>
         <span className="text-2xl">{game.emoji}</span>
         <h1 className="text-white font-bold text-lg" style={{ fontFamily: "'Fredoka One', cursive" }}>
-          {game.name}
+          {displayName}
         </h1>
       </div>
       <div className="p-4">

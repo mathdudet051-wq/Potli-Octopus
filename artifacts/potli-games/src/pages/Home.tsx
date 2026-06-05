@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { GAMES } from "@/games";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useLang } from "@/LangContext";
 
 function Bubble({ style }: { style: React.CSSProperties }) {
   return (
@@ -12,6 +13,8 @@ function Bubble({ style }: { style: React.CSSProperties }) {
 }
 
 export default function Home() {
+  const { lang, setLang, t } = useLang();
+
   const [bubbles] = useState(() =>
     Array.from({ length: 18 }, (_, i) => ({
       id: i,
@@ -52,7 +55,7 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 px-4 pb-24 pt-8 max-w-6xl mx-auto">
+      <div className="relative z-10 px-4 pb-28 pt-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <img
@@ -64,46 +67,77 @@ export default function Home() {
             className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg leading-tight"
             style={{ fontFamily: "'Fredoka One', cursive", textShadow: "3px 3px 0px #005f8a" }}
           >
-            Potli's Ocean Adventure!
+            {t.title}
           </h1>
           <p
             className="text-xl text-cyan-100 mt-3 max-w-xl mx-auto"
             style={{ fontFamily: "'Fredoka One', cursive" }}
           >
-            Help Potli save the sea! Play fun games and become an Eco Hero!
+            {t.subtitle}
           </p>
         </div>
 
         {/* Games Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {GAMES.map((game) => (
-            <Link key={game.id} href={`/game/${game.id}`}>
-              <div
-                data-testid={`game-card-${game.id}`}
-                className="bg-white/90 backdrop-blur rounded-3xl p-4 cursor-pointer hover:scale-105 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-2xl border-4 border-white/60 hover:border-yellow-300 flex flex-col items-center text-center"
-              >
-                <div className="text-5xl mb-2 animate-wiggle">{game.emoji}</div>
-                <h3
-                  className="text-base font-bold text-blue-900 leading-tight mb-1"
-                  style={{ fontFamily: "'Fredoka One', cursive" }}
+          {GAMES.map((game) => {
+            const gt = t.games[game.id as keyof typeof t.games];
+            return (
+              <Link key={game.id} href={`/game/${game.id}`}>
+                <div
+                  data-testid={`game-card-${game.id}`}
+                  className="bg-white/90 backdrop-blur rounded-3xl p-4 cursor-pointer hover:scale-105 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-2xl border-4 border-white/60 hover:border-yellow-300 flex flex-col items-center text-center"
                 >
-                  {game.name}
-                </h3>
-                <p className="text-xs text-blue-600 mb-3 leading-snug">{game.description}</p>
-                <button
-                  className="w-full py-2 px-3 rounded-2xl text-white font-bold text-sm transition-transform active:scale-95"
-                  style={{
-                    background: "linear-gradient(135deg, #f72585, #7209b7)",
-                    fontFamily: "'Fredoka One', cursive",
-                    boxShadow: "0 4px 0px #a00060",
-                  }}
-                >
-                  Play!
-                </button>
-              </div>
-            </Link>
-          ))}
+                  <div className="text-5xl mb-2 animate-wiggle">{game.emoji}</div>
+                  <h3
+                    className="text-base font-bold text-blue-900 leading-tight mb-1"
+                    style={{ fontFamily: "'Fredoka One', cursive" }}
+                  >
+                    {gt?.name ?? game.name}
+                  </h3>
+                  <p className="text-xs text-blue-600 mb-3 leading-snug">
+                    {gt?.description ?? game.description}
+                  </p>
+                  <button
+                    className="w-full py-2 px-3 rounded-2xl text-white font-bold text-sm transition-transform active:scale-95"
+                    style={{
+                      background: "linear-gradient(135deg, #f72585, #7209b7)",
+                      fontFamily: "'Fredoka One', cursive",
+                      boxShadow: "0 4px 0px #a00060",
+                    }}
+                  >
+                    {t.play}
+                  </button>
+                </div>
+              </Link>
+            );
+          })}
         </div>
+      </div>
+
+      {/* Language toggle — fixed at bottom centre above the sand */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-white/20 backdrop-blur border-2 border-white/40 rounded-full px-1 py-1 shadow-lg">
+        <button
+          onClick={() => setLang("en")}
+          className="px-4 py-1.5 rounded-full font-bold text-sm transition-all"
+          style={{
+            fontFamily: "'Fredoka One', cursive",
+            background: lang === "en" ? "white" : "transparent",
+            color: lang === "en" ? "#023e8a" : "white",
+          }}
+        >
+          🇬🇧 EN
+        </button>
+        <button
+          onClick={() => setLang("hi")}
+          className="px-4 py-1.5 rounded-full font-bold text-sm transition-all"
+          style={{
+            fontFamily: "'Fredoka One', cursive",
+            background: lang === "hi" ? "white" : "transparent",
+            color: lang === "hi" ? "#023e8a" : "white",
+          }}
+        >
+          🇮🇳 हिंदी
+        </button>
       </div>
 
       <style>{`
