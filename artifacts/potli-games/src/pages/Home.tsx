@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { GAMES } from "@/games";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLang } from "@/LangContext";
 
 function Bubble({ style }: { style: React.CSSProperties }) {
@@ -12,35 +12,9 @@ function Bubble({ style }: { style: React.CSSProperties }) {
   );
 }
 
-function useInstallPrompt() {
-  const [prompt, setPrompt] = useState<any>(null);
-  const [installed, setInstalled] = useState(false);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => { setInstalled(true); setPrompt(null); });
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
-  const install = async () => {
-    if (!prompt) return;
-    prompt.prompt();
-    const { outcome } = await prompt.userChoice;
-    if (outcome === "accepted") setInstalled(true);
-    setPrompt(null);
-  };
-
-  return { canInstall: !!prompt, install, installed };
-}
 
 export default function Home() {
   const { lang, setLang, t } = useLang();
-  const { canInstall, install, installed } = useInstallPrompt();
-
   const [bubbles] = useState(() =>
     Array.from({ length: 18 }, (_, i) => ({
       id: i,
@@ -50,9 +24,6 @@ export default function Home() {
       delay: Math.random() * 8,
     }))
   );
-
-  const installLabel = lang === "hi" ? "📲 ऐप डाउनलोड करो!" : "📲 Install App!";
-  const installedLabel = lang === "hi" ? "✅ इंस्टॉल हो गया!" : "✅ Installed!";
 
   return (
     <div
@@ -105,31 +76,6 @@ export default function Home() {
             {t.subtitle}
           </p>
 
-          {/* ── Install button — only shown when browser supports one-click install ── */}
-          {(canInstall || installed) && (
-            <div className="mt-5 flex flex-col items-center">
-              {installed ? (
-                <div
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-green-400/30 border-2 border-green-300 text-green-200 font-bold text-lg"
-                  style={{ fontFamily: "'Fredoka One', cursive" }}
-                >
-                  {installedLabel}
-                </div>
-              ) : (
-                <button
-                  onClick={install}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-blue-900 font-bold text-xl shadow-xl active:scale-95 transition-transform animate-pulse-soft"
-                  style={{
-                    background: "linear-gradient(135deg, #ffd60a, #fb8500)",
-                    fontFamily: "'Fredoka One', cursive",
-                    boxShadow: "0 6px 0 #b05e00, 0 0 30px rgba(251,133,0,0.5)",
-                  }}
-                >
-                  {installLabel}
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Games Grid */}
