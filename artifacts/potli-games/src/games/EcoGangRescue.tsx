@@ -1,15 +1,18 @@
 import { useState } from "react";
 import WinScreen from "./WinScreen";
+import { useLang } from "@/LangContext";
 
 const FRIENDS = [
-  { id: "swifty", emoji: "🐠", name: "Swifty" },
-  { id: "tara", emoji: "🐢", name: "Tara" },
-  { id: "gloei", emoji: "🐟", name: "Gloei" },
-  { id: "tutu", emoji: "🦀", name: "Tutu" },
-  { id: "jiffi", emoji: "🦑", name: "Jiffi" },
+  { id: "swifty", emoji: "🐠", nameEn: "Swifty", nameHi: "स्विफ्टी" },
+  { id: "tara",   emoji: "🐢", nameEn: "Tara",   nameHi: "तारा" },
+  { id: "gloei",  emoji: "🐟", nameEn: "Gloei",  nameHi: "ग्लोई" },
+  { id: "tutu",   emoji: "🦀", nameEn: "Tutu",   nameHi: "टुटु" },
+  { id: "jiffi",  emoji: "🦑", nameEn: "Jiffi",  nameHi: "जिफ़ी" },
 ];
 
 export default function EcoGangRescue() {
+  const { lang, gameT } = useLang();
+  const gm = gameT.ecoGang as any;
   const [freed, setFreed] = useState<string[]>([]);
   const [freeing, setFreeing] = useState<string | null>(null);
   const [won, setWon] = useState(false);
@@ -28,26 +31,21 @@ export default function EcoGangRescue() {
   };
 
   const reset = () => { setFreed([]); setFreeing(null); setWon(false); };
-
-  if (won) return <WinScreen message="All Eco Gang friends saved!" score="5 friends freed!" onReset={reset} />;
+  if (won) return <WinScreen message={gm.winMessage} score={gm.winScore(5)} onReset={reset} />;
 
   return (
     <div className="max-w-md mx-auto text-center">
       <img src="/potli.jpg" alt="Potli" className="w-20 h-20 mx-auto rounded-full border-4 border-yellow-400 object-cover mb-3" />
       <p className="text-white text-xl font-bold mb-1" style={{ fontFamily: "'Fredoka One', cursive" }}>
-        Freed: {freed.length}/{FRIENDS.length}
+        {lang === "hi" ? `बचाए: ${freed.length}/${FRIENDS.length}` : `Freed: ${freed.length}/${FRIENDS.length}`}
       </p>
-      <p className="text-cyan-200 text-sm mb-6" style={{ fontFamily: "'Fredoka One', cursive" }}>
-        Tap Potli's friends to break their plastic nets!
-      </p>
-
+      <p className="text-cyan-200 text-sm mb-6" style={{ fontFamily: "'Fredoka One', cursive" }}>{gm.instruction}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {FRIENDS.map((f) => {
           const isFree = freed.includes(f.id);
           const isFreeing = freeing === f.id;
           return (
-            <button key={f.id} data-testid={`friend-${f.id}`}
-              onClick={() => free(f.id)}
+            <button key={f.id} data-testid={`friend-${f.id}`} onClick={() => free(f.id)}
               disabled={isFree || !!freeing}
               className="rounded-3xl p-5 flex flex-col items-center gap-2 transition-all duration-300 active:scale-95 border-4"
               style={{
@@ -58,17 +56,13 @@ export default function EcoGangRescue() {
               }}>
               <div className="relative">
                 <span className="text-6xl">{f.emoji}</span>
-                {!isFree && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-4xl opacity-70" style={{ filter: "none" }}>🕸️</div>
-                  </div>
-                )}
+                {!isFree && <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-70 pointer-events-none">🕸️</div>}
                 {isFreeing && <div className="absolute inset-0 flex items-center justify-center text-3xl animate-ping">💥</div>}
               </div>
               <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fredoka One', cursive" }}>
-                {isFree ? "✅ Saved!" : f.name}
+                {isFree ? gm.saved : (lang === "hi" ? f.nameHi : f.nameEn)}
               </span>
-              {isFree && <span className="text-green-300 text-xs" style={{ fontFamily: "'Fredoka One', cursive" }}>Yay!</span>}
+              {isFree && <span className="text-green-300 text-xs" style={{ fontFamily: "'Fredoka One', cursive" }}>{gm.yay}</span>}
             </button>
           );
         })}

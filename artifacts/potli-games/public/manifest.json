@@ -1,0 +1,25 @@
+{
+  "name": "Potli's Ocean Adventure",
+  "short_name": "Potli",
+  "description": "Help Potli the Octopus save the ocean! 22 fun eco games for kids aged 3–7.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0077b6",
+  "theme_color": "#0077b6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/potli.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/potli.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "education", "kids"]
+}
